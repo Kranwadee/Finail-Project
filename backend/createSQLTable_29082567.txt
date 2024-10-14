@@ -1,0 +1,70 @@
+-- ลบตารางเก่าถ้ามีอยู่แล้วเพื่อป้องกันข้อผิดพลาดในการสร้าง
+DROP TABLE IF EXISTS userJoinActivity;
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS activityscore;
+DROP TABLE IF EXISTS activity;
+DROP TABLE IF EXISTS scoretype;
+
+-- Create table: activity
+CREATE TABLE activity (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title TEXT,
+    description TEXT,
+    imagePath TEXT,
+    event_dateTime DATETIME,
+    location TEXT,
+    maxJoin INT NOT NULL,           -- Maximum number of participants allowed
+    currentJoined INT DEFAULT 0     -- Current number of participants
+);
+
+-- Create table: scoretype
+CREATE TABLE scoretype (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    scoreName VARCHAR(30) UNIQUE
+);
+
+-- Create table: activityscore
+CREATE TABLE activityscore (
+    activityId INT,
+    scoreTypeId INT,
+    score INT,
+    PRIMARY KEY (activityId, scoreTypeId),
+    CONSTRAINT fk_activityscore_activity FOREIGN KEY (activityId) REFERENCES activity(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_activityscore_scoreType FOREIGN KEY (scoreTypeId) REFERENCES scoretype(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Create table: roles
+CREATE TABLE roles (
+    roleId INT PRIMARY KEY AUTO_INCREMENT,
+    roleName VARCHAR(30) UNIQUE
+);
+
+-- Create table: users
+CREATE TABLE users (
+    userId INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(60) UNIQUE,
+    password VARCHAR(60),
+    phoneNumber VARCHAR(10),
+    studentId VARCHAR(10) UNIQUE
+);
+
+-- Create table: user_roles
+CREATE TABLE user_roles (
+    userId INT,
+    roleId INT,
+    PRIMARY KEY (userId, roleId),
+    CONSTRAINT fk_user_roles_user FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_user_roles_role FOREIGN KEY (roleId) REFERENCES roles(roleId) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Create table: userJoinActivity
+CREATE TABLE userJoinActivity (
+    userId INT,
+    activityId INT,
+    joinDate DATE,
+    PRIMARY KEY (userId, activityId),
+    CONSTRAINT fk_userJoinActivity_user FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_userJoinActivity_activity FOREIGN KEY (activityId) REFERENCES activity(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
